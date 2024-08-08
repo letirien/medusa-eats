@@ -1,0 +1,34 @@
+version: '3.9'
+name: 'medusa-eats'
+
+volumes:
+  medusa-eats:
+
+services:
+  db:
+    container_name: db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - medusa-eats:/var/lib/postgresql/data/
+    ports:
+      - 5440:5432
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - medusa-eats
+    ports:
+      - 6379:6379
+
+networks:
+  medusa-eats:
+    name: medusa-eats
+    external: false
+  node-network:
+    driver: bridge
