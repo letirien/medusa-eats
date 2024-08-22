@@ -12,22 +12,27 @@ export const createRestaurantProductsStep = createStep(
     const restaurantModuleService = container.resolve(
       "restaurantModuleService"
     );
+    console.log('Product IDs:', data.product_ids);
 
     const restaurantProductData = data.product_ids.map((product_id) => ({
       restaurant_id: data.restaurant_id,
       product_id,
     }));
+    console.log('Restaurant Product Data:', restaurantProductData);
 
     // Add the product to the restaurant
-    const restaurantProduct =
-      await restaurantModuleService.createRestaurantProducts(
+    try {
+      const restaurantProduct = await restaurantModuleService.createRestaurantProducts(
         restaurantProductData
       );
-
-    return new StepResponse(restaurantProduct, {
-      product_ids: data.product_ids,
-      restaurant_id: data.restaurant_id,
-    });
+      return new StepResponse(restaurantProduct, {
+        product_ids: data.product_ids,
+        restaurant_id: data.restaurant_id,
+      });
+    } catch (error) {
+      console.error('Error creating restaurant products:', error);
+      throw error;  // Rejette l'erreur pour qu'elle soit gérée par l'étape précédente ou globale
+    }
   },
   function (
     input: {

@@ -22,6 +22,6 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   });
 
   const products = await remoteQuery(query);
-
+  console.log(products.find(el => el.variants))
   return res.status(200).json({ products });
 }

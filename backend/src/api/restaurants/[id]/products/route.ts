@@ -7,21 +7,30 @@ import {
 } from "@medusajs/utils";
 import zod from "zod";
 import { createRestaurantProductsWorkflow } from "../../../../workflows/restaurant/workflows";
+import { CreateProductDTO } from "@medusajs/types";
 
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { products } = JSON.parse(req.body as string);
+  // Si req.body est déjà un objet, pas besoin de le parser
+  const products = Array.isArray(req.body) ? req.body as CreateProductDTO[] : [req.body as CreateProductDTO];
 
-  const { result: restaurantProducts } = await createRestaurantProductsWorkflow(
-    req.scope
-  ).run({
-    input: {
-      products,
-      restaurant_id: req.params.id,
-    },
-  });
+  console.log(products); // Cela doit afficher les produits reçus
 
-  // Return the product
-  return res.status(200).json({ restaurant_products: restaurantProducts });
+  try {
+    const { result: restaurantProducts } = await createRestaurantProductsWorkflow(
+      req.scope
+    ).run({
+      input: {
+        products,
+        restaurant_id: req.params.id,
+      },
+    });
+
+    // Return the created products
+    return res.status(200).json({ restaurant_products: restaurantProducts });
+  } catch (error) {
+    console.error("Error during workflow execution:", error);
+    return res.status(500).json({ error: "An unknown error occurred." });
+  }
 }
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
@@ -56,6 +65,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       "categories.id",
       "categories.name",
       "variants",
+      "variants.title",
       "variants.id",
       "variants.price_set",
       "variants.price_set.id",
