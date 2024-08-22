@@ -42,6 +42,14 @@ export default defineMiddlewares({
     },
     {
       method: ["POST"],
+      matcher: "/categories",
+      middlewares: [
+        authenticate(["admin", "restaurant"], "bearer"),
+        isAllowed,
+      ],
+    },
+    {
+      method: ["POST"],
       matcher: "/restaurants/:id/products",
       middlewares: [
         authenticate(["restaurant", "admin"], "bearer", {
